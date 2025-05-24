@@ -1,7 +1,12 @@
 import cv2
 import numpy as np
 from PyQt6.QtCore import QRectF, Qt
-from PyQt6.QtWidgets import QApplication, QInputDialog, QSizePolicy, QToolBar, QGraphicsScene, QGraphicsView, QGraphicsPixmapItem, QFileDialog, QPushButton, QLabel, QVBoxLayout, QHBoxLayout, QWidget
+from PyQt6.QtWidgets import (
+    QApplication, QInputDialog, QSizePolicy, QToolBar, 
+    QGraphicsScene, QGraphicsView, QGraphicsPixmapItem, 
+    QFileDialog, QPushButton, QLabel, QVBoxLayout, 
+    QWidget, QDialog, QVBoxLayout, QLabel, QSlider, QDialogButtonBox
+)
 from PyQt6.QtGui import QPixmap, QImage, QWheelEvent, QPainter
 
 class ImageViewer(QGraphicsView):
@@ -50,7 +55,7 @@ class ImageViewer(QGraphicsView):
 class ImageApp(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('OpenCV Image Processor')
+        self.setWindowTitle('PixNity')
         self.setGeometry(100, 100, 800, 600)
 
         # Layout
@@ -148,10 +153,28 @@ class ImageApp(QWidget):
         # Button to Black/White image
         self.bw_button = QPushButton('Black/White')
         def get_bw_value():
-            value, ok = QInputDialog.getInt(self, "Colorify Value Input", "Enter number of splits:", min=1, max=256)
-            if ok:
-                bw_button_fn(value)
-                print("User entered:", value)
+            dialog = QDialog(self)
+            dialog.setWindowTitle("B&W Threshold")
+
+            slider = QSlider(Qt.Orientation.Horizontal, dialog)
+            slider.setRange(1, 255)
+            slider.setValue(128)
+
+            label = QLabel(f"Threshold: {slider.value()}", dialog)
+            slider.valueChanged.connect(lambda v: label.setText(f"Threshold: {v}"))
+
+            buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, parent=dialog)
+            buttons.accepted.connect(dialog.accept)
+            buttons.rejected.connect(dialog.reject)
+
+            layout = QVBoxLayout(dialog)
+            layout.addWidget(label)
+            layout.addWidget(slider)
+            layout.addWidget(buttons)
+
+            if dialog.exec():
+                bw_button_fn(slider.value())
+                print("Threshold set to:", slider.value())
         def bw_button_fn(n):
             img = self.cv_image
             threshold_b = n
