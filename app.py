@@ -4,7 +4,7 @@ from PyQt6.QtCore import QRectF, Qt
 from PyQt6.QtWidgets import (
     QApplication, QInputDialog, QSizePolicy, QToolBar, 
     QGraphicsScene, QGraphicsView, QGraphicsPixmapItem, 
-    QFileDialog, QPushButton, QLabel, QVBoxLayout, 
+    QFileDialog, QPushButton, QLabel, QVBoxLayout, QMessageBox,
     QWidget, QDialog, QVBoxLayout, QLabel, QSlider, QDialogButtonBox
 )
 from PyQt6.QtGui import QPixmap, QImage, QWheelEvent, QPainter
@@ -64,6 +64,22 @@ class ImageApp(QWidget):
         self.img_path = None
         self.cv_image = None
 
+        self.file_toolbar = QToolBar()
+        self.file_toolbar.setMovable(False)
+        self.file_toolbar.setFloatable(False)
+        self.file_toolbar.setOrientation(Qt.Orientation.Horizontal)
+        self.file_toolbar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.file_toolbar.setMinimumHeight(40)
+        self.file_toolbar.setStyleSheet(
+            """
+                QToolBar {
+                    spacing: 10px;
+                    padding: 5px;
+                }
+            """
+        )
+        self.layout.addWidget(self.file_toolbar)
+
         # Button to load image
         self.load_button = QPushButton('Load')
         def load_image():
@@ -73,8 +89,26 @@ class ImageApp(QWidget):
                 self.set_img()
                 self.viewer.fit_image()
         self.load_button.clicked.connect(load_image)
-        self.layout.addWidget(self.load_button)
+        self.file_toolbar.addWidget(self.load_button)
 
+        # Button to save image
+        self.save_button = QPushButton('Save')
+        def save_image():
+            if not hasattr(self, 'cv_image') or self.cv_image is None:
+                QMessageBox.warning(self, "No Image", "No image loaded to save.")
+                return
+            save_path, _ = QFileDialog.getSaveFileName(
+                self, "Save Image As", "", "Images (*.png *.jpg *.bmp)"
+            )
+            if save_path:
+                image_to_save = cv2.cvtColor(self.cv_image, cv2.COLOR_RGB2BGR)
+                success = cv2.imwrite(save_path, image_to_save)
+                if not success:
+                    QMessageBox.warning(self, "Save Error", "Failed to save the image.")
+                else:
+                    QMessageBox.information(self, "Saved", "Image saved successfully.")
+        self.save_button.clicked.connect(save_image)
+        self.file_toolbar.addWidget(self.save_button)
 
         # Label to show image
         self.viewer = ImageViewer()
