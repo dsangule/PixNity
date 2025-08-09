@@ -1,0 +1,26 @@
+# Python
+*.pyc
+__pycache__/
+*.pyo
+
+# Virtual environments
+.env/
+.venv/
+env/
+venv/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+src/PixNity.egg-info/
+
+# IDE/editor configs
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Coverage reports
+.coverage

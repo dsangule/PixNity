@@ -1,0 +1,31 @@
+[tool.ruff]
+line-length = 109
+target-version = "py311"
+
+# Linter-specific settings
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "W",  # pycodestyle warnings
+]
+ignore = [
+    # "E203", # Whitespace before ':', handled by black
+    # "W503", # Line break before binary operator, handled by black
+]
+
+# Isort-specific settings
+[tool.ruff.lint.isort]
+known-third-party = ["cv2", "PyQt6"]
+
+[tool.coverage]
+
+[tool.coverage.run]
+source = ["src/PixNity"]
+# omit = ["*/tests/*"]
+
+[tool.coverage.report]
+# Show the line numbers of statements that were not executed.
+show_missing = true
